@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tarefas">
+<meta name="theme-color" content="#0f0f0f">
+<title>Tarefas</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Apple Touch Icon inline via canvas -->
+<link rel="apple-touch-icon" id="appIcon">
+
+<style>
+:root {
+  --bg:      #0f0f0f;
+  --bg2:     #1a1a1a;
+  --bg3:     #242424;
+  --bg4:     #2e2e2e;
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text:    #f0ede8;
+  --text2:   #8a8780;
+  --text3:   #4a4845;
+  --gold:    #c8a97e;
+  --gold2:   rgba(200,169,126,0.12);
+  --gold3:   rgba(200,169,126,0.06);
+  --green:   #5a9e6f;
+  --green2:  rgba(90,158,111,0.15);
+  --red:     #c25e5e;
+  --red2:    rgba(194,94,94,0.12);
+  --blue:    #5b8dee;
+  --blue2:   rgba(91,141,238,0.12);
+  --radius:  14px;
+  --rsm:     9px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ───── LAYOUT ───── */
+.app {
+  display: flex;
+  height: 100dvh;
+  padding-top: var(--safe-top);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ───── SIDEBAR ───── */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--bg2);
+  border-right: 0.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1),
+              opacity 0.3s ease;
+  z-index: 30;
+  padding-bottom: 20px;
+}
+.sidebar::-webkit-scrollbar { display: none; }
+
+@media (max-width: 600px) {
+  .sidebar {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    transform: translateX(-100%);
+    opacity: 0;
+    box-shadow: 8px 0 40px rgba(0,0,0,0.6);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  .overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 20;
+  }
+  .overlay.show { display: block; }
+}
+
+.sb-top {
+  padding: 20px 16px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 8px;
+}
+.sb-logo {
+  width: 32px; height: 32px;
+  background: var(--bg);
+  border-radius: 8px;
+  border: 0.5px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sb-logo svg { width: 20px; height: 20px; }
+.sb-app-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.sb-section {
+  padding: 12px 16px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  margin: 1px 8px;
+  border-radius: var(--rsm);
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+  user-select: none;
+}
+.sb-item:hover { background: var(--bg3); }
+.sb-item.active {
+  background: var(--gold2);
+}
+.sb-item.active .sb-icon,
+.sb-item.active .sb-name { color: var(--gold); }
+
+.sb-icon {
+  width: 17px; text-align: center;
+  font-size: 15px;
+  color: var(--text2);
+  flex-shrink: 0;
+}
+.sb-name { font-size: 13px; color: var(--text2); flex: 1; font-weight: 400; }
+.sb-item.active .sb-name { font-weight: 500; }
+.sb-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: var(--bg4);
+  color: var(--text3);
+  min-width: 22px;
+  text-align: center;
+}
+.sb-badge.gold { background: var(--gold2); color: var(--gold); }
+.sb-badge.red  { background: var(--red2);  color: var(--red);  }
+
+.sb-divider { height: 0.5px; background: var(--border); margin: 8px 16px; }
+
+.sb-cat {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 10px;
+  margin: 1px 8px;
+  border-radius: var(--rsm);
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+.sb-cat:hover { background: var(--bg3); }
+.sb-cat.active { background: var(--gold2); }
+.sb-cat.active .sb-cat-name { color: var(--gold); font-weight: 500; }
+.sb-cat-emoji { font-size: 14px; width: 18px; text-align: center; }
+.sb-cat-name { font-size: 13px; color: var(--text2); flex: 1; }
+.sb-cat-count { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; }
+
+.sb-add-cat {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; margin: 4px 8px;
+  border-radius: var(--rsm); cursor: pointer;
+  border: 0.5px dashed var(--border2);
+  transition: all 0.15s; color: var(--text3);
+  font-size: 12px;
+}
+.sb-add-cat:hover { border-color: var(--gold); color: var(--gold); background: var(--gold3); }
+
+/* ───── MAIN ───── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 10px;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.menu-btn {
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 9px; cursor: pointer;
+  transition: background 0.15s;
+  color: var(--text2); font-size: 18px;
+  flex-shrink: 0;
+}
+.menu-btn:hover { background: var(--bg3); color: var(--text); }
+
+.topbar-title { flex: 1; min-width: 0; }
+.topbar-title h1 {
+  font-size: 16px; font-weight: 600;
+  color: var(--text); letter-spacing: -0.02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.topbar-title p {
+  font-size: 11px; color: var(--text3);
+  margin-top: 1px; font-family: 'DM Mono', monospace;
+}
+
+/* ───── DATE TABS ───── */
+.date-tabs {
+  display: flex; gap: 4px;
+  padding: 10px 16px 0;
+  flex-shrink: 0;
+}
+.dtab {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text3);
+  border: 0.5px solid transparent;
+}
+.dtab:hover { color: var(--text2); background: var(--bg3); }
+.dtab.active {
+  background: var(--gold);
+  color: #1a1208;
+  font-weight: 600;
+  border-color: var(--gold);
+}
+
+/* ───── PROGRESS BAR ───── */
+.progress-wrap {
+  padding: 10px 16px 0;
+  flex-shrink: 0;
+}
+.progress-bar {
+  height: 3px;
+  background: var(--bg3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(.4,0,.2,1);
+}
+.progress-label {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 4px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* ───── TASK LIST ───── */
+.task-list {
+  flex: 1; overflow-y: auto;
+  padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 5px;
+  scrollbar-width: none;
+  padding-bottom: calc(80px + var(--safe-bottom));
+}
+.task-list::-webkit-scrollbar { display: none; }
+
+.group-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; color: var(--text3);
+  text-transform: uppercase;
+  padding: 10px 4px 5px;
+}
+
+.task-card {
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 11px 13px;
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer;
+  transition: all 0.18s;
+  position: relative;
+  overflow: hidden;
+  animation: cardIn 0.25s ease both;
+  touch-action: pan-y;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.task-card:hover { background: var(--bg3); border-color: var(--border2); }
+.task-card.done { opacity: 0.38; }
+.task-card.done .task-title { text-decoration: line-through; }
+.task-card.removing {
+  animation: cardOut 0.2s ease forwards;
+}
+@keyframes cardOut {
+  to { opacity: 0; transform: translateX(40px) scale(0.95); max-height: 0; padding: 0; margin: 0; border: none; }
+}
+
+.check {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  cursor: pointer;
+  background: transparent;
+}
+.check:hover { border-color: var(--gold); }
+.check.done { background: var(--green); border-color: var(--green); }
+.check svg { width: 11px; height: 11px; opacity: 0; transition: opacity 0.15s; }
+.check.done svg { opacity: 1; }
+
+.task-info { flex: 1; min-width: 0; }
+.task-title { font-size: 13px; color: var(--text); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.task-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; flex-wrap: wrap; }
+.task-cat  { font-size: 10px; color: var(--text3); display: flex; align-items: center; gap: 3px; }
+.task-time { font-size: 10px; color: var(--gold); font-family: 'DM Mono', monospace; display: flex; align-items: center; gap: 3px; }
+.task-badge {
+  font-size: 9px; padding: 1px 6px;
+  border-radius: 5px;
+  display: flex; align-items: center; gap: 3px;
+}
+.task-badge.shortcut { background: var(--blue2); color: var(--blue); }
+.task-badge.overdue  { background: var(--red2);  color: var(--red);  }
+
+.task-delete {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text3); font-size: 15px;
+  opacity: 0; transition: all 0.15s;
+  flex-shrink: 0;
+}
+.task-card:hover .task-delete { opacity: 1; }
+.task-delete:hover { background: var(--red2); color: var(--red); }
+
+/* empty state */
+.empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px; padding: 40px;
+  color: var(--text3);
+  animation: cardIn 0.3s ease;
+}
+.empty svg { opacity: 0.3; }
+.empty p { font-size: 13px; text-align: center; line-height: 1.5; }
+
+/* ───── FAB ───── */
+.fab {
+  position: absolute;
+  bottom: calc(22px + var(--safe-bottom));
+  right: 18px;
+  width: 52px; height: 52px;
+  background: var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.15s;
+  font-size: 24px; color: #1a1208;
+  box-shadow: 0 0 0 8px rgba(200,169,126,0.08),
+              0 0 0 1px rgba(200,169,126,0.15);
+}
+.fab:hover { transform: scale(1.06); }
+.fab:active { transform: scale(0.94); }
+
+/* ───── MODAL ───── */
+.modal-bg {
+  display: none;
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 50;
+  align-items: flex-end;
+}
+.modal-bg.open { display: flex; }
+
+.modal {
+  background: var(--bg2);
+  border-radius: 22px 22px 0 0;
+  border-top: 0.5px solid var(--border2);
+  padding: 16px 16px calc(20px + var(--safe-bottom));
+  width: 100%;
+  animation: slideUp 0.3s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.modal-handle {
+  width: 34px; height: 3px;
+  background: var(--bg4); border-radius: 2px;
+  margin: 0 auto 18px;
+}
+.modal-title {
+  font-size: 15px; font-weight: 600;
+  color: var(--text); margin-bottom: 16px;
+}
+
+.form-field { margin-bottom: 13px; }
+.form-label {
+  display: block; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 6px;
+}
+.form-input, .form-select {
+  width: 100%;
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: var(--rsm);
+  padding: 10px 12px;
+  font-size: 13px; color: var(--text);
+  outline: none;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.form-input:focus, .form-select:focus { border-color: var(--gold); }
+.form-input::placeholder { color: var(--text3); }
+
+.form-row { display: flex; gap: 8px; }
+.form-row .form-field { flex: 1; }
+
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  padding: 6px 13px; border-radius: 20px;
+  font-size: 12px; font-weight: 500;
+  border: 0.5px solid var(--border2);
+  color: var(--text3); cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.chip:hover { color: var(--text2); border-color: var(--border2); background: var(--bg3); }
+.chip.active { background: var(--gold2); border-color: var(--gold); color: var(--gold); }
+
+/* shortcuts row */
+.shortcut-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--blue2);
+  border: 0.5px solid rgba(91,141,238,0.2);
+  border-radius: var(--rsm);
+  padding: 10px 12px; margin-bottom: 13px;
+}
+.shortcut-row .icon { font-size: 16px; color: var(--blue); flex-shrink: 0; }
+.shortcut-text { flex: 1; font-size: 11px; color: var(--blue); line-height: 1.4; }
+.shortcut-text strong { font-weight: 600; display: block; }
+.toggle-wrap { flex-shrink: 0; }
+.toggle {
+  width: 36px; height: 21px;
+  background: var(--bg4); border-radius: 10px;
+  position: relative; cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle.on { background: var(--blue); }
+.toggle::after {
+  content: '';
+  width: 17px; height: 17px;
+  background: #fff; border-radius: 50%;
+  position: absolute; top: 2px; left: 2px;
+  transition: transform 0.2s;
+}
+.toggle.on::after { transform: translateX(15px); }
+
+.btn-save {
+  width: 100%; padding: 13px;
+  background: var(--gold);
+  border: none; border-radius: var(--radius);
+  font-size: 14px; font-weight: 600;
+  color: #1a1208; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: -0.01em;
+}
+.btn-save:hover { opacity: 0.9; }
+.btn-save:active { transform: scale(0.98); opacity: 0.8; }
+
+/* ───── CAT MODAL ───── */
+.emoji-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 6px; margin-bottom: 14px;
+}
+.emoji-btn {
+  height: 40px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer;
+  border: 0.5px solid transparent;
+  transition: all 0.12s;
+  background: var(--bg3);
+}
+.emoji-btn:hover { background: var(--bg4); }
+.emoji-btn.selected { border-color: var(--gold); background: var(--gold2); }
+
+/* ───── SETUP BANNER ───── */
+.setup-banner {
+  display: none;
+  background: var(--blue2);
+  border: 0.5px solid rgba(91,141,238,0.25);
+  border-radius: var(--rsm);
+  margin: 10px 12px 0;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+.setup-banner.show { display: flex; align-items: flex-start; gap: 10px; }
+.setup-banner .icon { font-size: 18px; flex-shrink: 0; }
+.setup-banner-text { flex: 1; }
+.setup-banner-text strong { font-size: 12px; font-weight: 600; color: var(--blue); display: block; margin-bottom: 2px; }
+.setup-banner-text span { font-size: 11px; color: rgba(91,141,238,0.75); line-height: 1.4; }
+.setup-banner-close { font-size: 14px; color: var(--blue); opacity: 0.5; padding: 2px; cursor: pointer; flex-shrink: 0; }
+
+/* ───── GUIDE MODAL ───── */
+.guide-modal {
+  background: var(--bg2);
+  border-radius: 22px 22px 0 0;
+  border-top: 0.5px solid var(--border2);
+  padding: 16px 16px calc(20px + var(--safe-bottom));
+  width: 100%;
+  max-height: 85dvh;
+  overflow-y: auto;
+  animation: slideUp 0.3s cubic-bezier(.4,0,.2,1);
+}
+.step-item {
+  display: flex; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 0.5px solid var(--border);
+}
+.step-item:last-child { border-bottom: none; }
+.step-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--gold2); color: var(--gold);
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.step-body strong { font-size: 13px; font-weight: 600; color: var(--text); display: block; margin-bottom: 3px; }
+.step-body p { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.step-body code {
+  display: inline-block; background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 5px; padding: 2px 7px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; color: var(--gold);
+  margin-top: 5px; word-break: break-all;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar" role="navigation" aria-label="Menu de navegação">
+    <div class="sb-top">
+      <div class="sb-logo">
+        <svg viewBox="0 0 20 20" fill="none">
+          <rect x="2" y="3" width="9" height="1.5" rx=".75" fill="#c8a97e"/>
+          <rect x="2" y="6.5" width="7" height="1.2" rx=".6" fill="rgba(200,169,126,0.4)"/>
+          <rect x="2" y="9.5" width="8" height="1.2" rx=".6" fill="rgba(200,169,126,0.4)"/>
+          <rect x="2" y="13" width="9" height="1.5" rx=".75" fill="#c8a97e"/>
+          <rect x="2" y="16.2" width="6" height="1.2" rx=".6" fill="rgba(200,169,126,0.4)"/>
+          <circle cx="15.5" cy="13.5" r="3.8" fill="rgba(200,169,126,0.1)" stroke="#c8a97e" stroke-width=".9"/>
+          <line x1="15.5" y1="11.5" x2="15.5" y2="13.5" stroke="#c8a97e" stroke-width=".9" stroke-linecap="round"/>
+          <line x1="15.5" y1="13.5" x2="17" y2="15" stroke="#c8a97e" stroke-width=".9" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="sb-app-name">Tarefas</span>
+    </div>
+
+    <div class="sb-section">Visão</div>
+
+    <div class="sb-item active" onclick="selectView('hoje','Hoje','tarefas de hoje')" id="view-hoje" role="button" aria-label="Ver tarefas de hoje">
+      <span class="sb-icon">☀</span>
+      <span class="sb-name">Hoje</span>
+      <span class="sb-badge gold" id="badge-hoje">0</span>
+    </div>
+    <div class="sb-item" onclick="selectView('amanha','Amanhã','planejado para amanhã')" id="view-amanha" role="button" aria-label="Ver tarefas de amanhã">
+      <span class="sb-icon">◎</span>
+      <span class="sb-name">Amanhã</span>
+      <span class="sb-badge" id="badge-amanha">0</span>
+    </div>
+    <div class="sb-item" onclick="selectView('atrasadas','Atrasadas','não concluídas')" id="view-atrasadas" role="button" aria-label="Ver tarefas atrasadas">
+      <span class="sb-icon">⚑</span>
+      <span class="sb-name">Atrasadas</span>
+      <span class="sb-badge red" id="badge-atrasadas" style="display:none">0</span>
+    </div>
+    <div class="sb-item" onclick="selectView('todas','Todas','todas as tarefas')" id="view-todas" role="button" aria-label="Ver todas as tarefas">
+      <span class="sb-icon">≡</span>
+      <span class="sb-name">Todas</span>
+      <span class="sb-badge" id="badge-todas">0</span>
+    </div>
+
+    <div class="sb-divider"></div>
+    <div class="sb-section">Categorias</div>
+
+    <div id="catList"></div>
+
+    <div class="sb-add-cat" onclick="openCatModal()" role="button" aria-label="Adicionar nova categoria">
+      <span style="font-size:14px">＋</span>
+      <span>Nova categoria</span>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <div class="sb-item" onclick="openGuide()" role="button" aria-label="Configurar atalhos do iPhone">
+      <span class="sb-icon" style="color:var(--blue)">⌘</span>
+      <span class="sb-name" style="color:var(--blue)">Config. Atalhos</span>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main" role="main">
+    <div class="topbar">
+      <div class="menu-btn" onclick="toggleSidebar()" aria-label="Abrir/fechar menu">☰</div>
+      <div class="topbar-title">
+        <h1 id="viewTitle">Hoje</h1>
+        <p id="viewSub" id="viewSub">tarefas de hoje</p>
+      </div>
+      <div class="menu-btn" onclick="toggleSearch()" aria-label="Buscar">⌕</div>
+    </div>
+
+    <!-- search bar (hidden by default) -->
+    <div id="searchWrap" style="display:none;padding:8px 12px 0;flex-shrink:0">
+      <input class="form-input" id="searchInput" placeholder="Buscar tarefas…" oninput="renderTasks()" style="font-size:13px">
+    </div>
+
+    <div class="setup-banner" id="setupBanner" onclick="openGuide()">
+      <span class="icon">⌘</span>
+      <div class="setup-banner-text">
+        <strong>Configure os Atalhos do iPhone</strong>
+        <span>Para criar lembretes automáticos ao salvar uma tarefa, configure o app Atalhos. Toque para ver o guia.</span>
+      </div>
+      <span class="setup-banner-close" onclick="dismissBanner(event)">✕</span>
+    </div>
+
+    <div class="date-tabs">
+      <div class="dtab active" onclick="switchTab(this,'hoje')" id="dtab-hoje">Hoje</div>
+      <div class="dtab" onclick="switchTab(this,'amanha')" id="dtab-amanha">Amanhã</div>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-label" id="progressLabel">0 de 0 concluídas</div>
+    </div>
+
+    <div class="task-list" id="taskList" role="list"></div>
+
+    <div class="fab" onclick="openTaskModal()" aria-label="Adicionar nova tarefa">＋</div>
+  </main>
+</div>
+
+<!-- ── TASK MODAL ── -->
+<div class="modal-bg" id="taskModal" onclick="closeOnBg(event,'taskModal')" role="dialog" aria-modal="true" aria-label="Nova tarefa">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="taskModalTitle">Nova tarefa</div>
+
+    <div class="form-field">
+      <label class="form-label">Título</label>
+      <input class="form-input" id="taskTitle" placeholder="Ex: Comprar temperos…" maxlength="80">
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Categoria</label>
+        <select class="form-select" id="taskCat" style="color:var(--text)"></select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Horário</label>
+        <input class="form-input" type="time" id="taskTime" style="font-family:'DM Mono',monospace;font-size:13px">
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Quando</label>
+      <div class="chip-row" id="chipRow">
+        <div class="chip active" onclick="selectChip(this,'hoje')">Hoje</div>
+        <div class="chip" onclick="selectChip(this,'amanha')">Amanhã</div>
+      </div>
+    </div>
+
+    <div class="shortcut-row">
+      <span class="icon">⌘</span>
+      <div class="shortcut-text">
+        <strong>Criar lembrete no iPhone</strong>
+        Via app Atalhos da Apple
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle on" id="shortcutToggle" onclick="this.classList.toggle('on')" role="switch" aria-checked="true" aria-label="Criar lembrete no iPhone"></div>
+      </div>
+    </div>
+
+    <button class="btn-save" onclick="saveTask()">Salvar tarefa</button>
+  </div>
+</div>
+
+<!-- ── CATEGORY MODAL ── -->
+<div class="modal-bg" id="catModal" onclick="closeOnBg(event,'catModal')" role="dialog" aria-modal="true" aria-label="Nova categoria">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nova categoria</div>
+    <div class="form-field">
+      <label class="form-label">Emoji</label>
+      <div class="emoji-grid" id="emojiGrid"></div>
+    </div>
+    <div class="form-field">
+      <label class="form-label">Nome</label>
+      <input class="form-input" id="catName" placeholder="Ex: Trabalho, Saúde…" maxlength="30">
+    </div>
+    <button class="btn-save" onclick="saveCategory()">Criar categoria</button>
+  </div>
+</div>
+
+<!-- ── GUIDE MODAL (Atalhos setup) ── -->
+<div class="modal-bg" id="guideModal" onclick="closeOnBg(event,'guideModal')" role="dialog" aria-modal="true" aria-label="Como configurar o app Atalhos">
+  <div class="guide-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">⌘</span> Como configurar os Atalhos
+    </div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5">Configure uma vez e toda tarefa com o toggle ativado criará automaticamente um lembrete no iPhone.</p>
+
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Abra o app Atalhos no iPhone</strong>
+        <p>Procure o ícone laranja na sua tela inicial ou busque por "Atalhos" no Spotlight.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Crie um novo atalho</strong>
+        <p>Toque no botão "＋" no canto superior direito para criar um novo atalho em branco.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Adicione a ação "Adicionar novo lembrete"</strong>
+        <p>Toque em "Adicionar ação", busque por <strong style="color:var(--text)">Lembrete</strong> e selecione <strong style="color:var(--text)">Adicionar novo lembrete</strong>.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <strong>Configure os campos</strong>
+        <p>No campo Título, toque em "Lembrete" e selecione <strong style="color:var(--text)">Entrada do atalho</strong>. Ative também Data e Hora para receber a notificação no horário certo.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <strong>Nomeie o atalho exatamente assim:</strong>
+        <p>O nome precisa ser exato para o app funcionar corretamente.</p>
+        <code>AddLembrete</code>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <strong>Pronto! Teste agora</strong>
+        <p>Volte ao app, crie uma tarefa com horário e o toggle azul ativado. O Atalhos será chamado automaticamente e criará o lembrete com o título e horário que você definiu.</p>
+      </div>
+    </div>
+
+    <button class="btn-save" style="margin-top:8px" onclick="closeModal('guideModal')">Entendi, fechar</button>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+var DB = {
+  tasks: [],
+  categories: [
+    { id:'c1', emoji:'🛒', name:'Mercado' },
+    { id:'c2', emoji:'🏠', name:'Casa'    },
+    { id:'c3', emoji:'💼', name:'Trabalho'},
+    { id:'c4', emoji:'💊', name:'Saúde'   }
+  ],
+  shortcutName: 'AddLembrete',
+  bannerDismissed: false
+};
+
+var state = {
+  view: 'hoje',
+  catFilter: null,
+  tab: 'hoje',
+  editId: null
+};
+
+var EMOJIS = ['🛒','🏠','💼','💊','🎓','🏋️','🚗','✈️','🎮','📚','🎵','🍳','🐶','🌱','💰','📸','🧹','👶','❤️','🔧','🎁','☕','🏖️','🎯'];
+var selectedEmoji = EMOJIS[0];
+
+function save() { try { localStorage.setItem('tarefas_db', JSON.stringify(DB)); } catch(e){} }
+function load() {
+  try {
+    var d = localStorage.getItem('tarefas_db');
+    if (d) { var p = JSON.parse(d); DB.tasks = p.tasks||[]; DB.categories = p.categories||DB.categories; DB.bannerDismissed = p.bannerDismissed||false; }
+  } catch(e){}
+}
+
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function tomorrowStr() { var d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); }
+
+// ── INIT ──
+load();
+migrateDates();
+buildIcon();
+renderSidebar();
+renderTasks();
+updateBadges();
+if (!DB.bannerDismissed) document.getElementById('setupBanner').classList.add('show');
+
+function migrateDates() {
+  var today = todayStr();
+  DB.tasks.forEach(function(t){
+    if (t.date === 'hoje')   t.date = today;
+    if (t.date === 'amanha') { var d = new Date(today); d.setDate(d.getDate()+1); t.date = d.toISOString().slice(0,10); }
+  });
+}
+
+// ── ICON ──
+function buildIcon() {
+  var c = document.createElement('canvas');
+  c.width = c.height = 180;
+  var ctx = c.getContext('2d');
+  ctx.fillStyle = '#0f0f0f';
+  roundRect(ctx, 0, 0, 180, 180, 40);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(200,169,126,0.3)';
+  ctx.lineWidth = 1;
+  roundRect(ctx, 0, 0, 180, 180, 40);
+  ctx.stroke();
+  ctx.fillStyle = '#c8a97e';
+  fillRR(ctx, 28, 38, 85, 11, 5);
+  ctx.fillStyle = 'rgba(200,169,126,0.38)';
+  fillRR(ctx, 28, 60, 65, 9, 4);
+  fillRR(ctx, 28, 78, 74, 9, 4);
+  ctx.fillStyle = '#c8a97e';
+  fillRR(ctx, 28, 102, 85, 11, 5);
+  ctx.fillStyle = 'rgba(200,169,126,0.38)';
+  fillRR(ctx, 28, 124, 55, 9, 4);
+  fillRR(ctx, 28, 142, 70, 9, 4);
+  ctx.strokeStyle = '#c8a97e';
+  ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  ctx.arc(143, 128, 27, 0, Math.PI*2);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(200,169,126,0.1)';
+  ctx.beginPath();
+  ctx.arc(143, 128, 27, 0, Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle = '#c8a97e';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(143, 110); ctx.lineTo(143, 128); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(143, 128); ctx.lineTo(157, 142); ctx.stroke();
+  ctx.fillStyle = '#c8a97e';
+  ctx.beginPath(); ctx.arc(143, 128, 5, 0, Math.PI*2); ctx.fill();
+  var link = document.getElementById('appIcon');
+  link.href = c.toDataURL('image/png');
+}
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+function fillRR(ctx, x, y, w, h, r) { roundRect(ctx, x, y, w, h, r); ctx.fill(); }
+
+// ── SIDEBAR ──
+function renderSidebar() {
+  var list = document.getElementById('catList');
+  list.innerHTML = '';
+  DB.categories.forEach(function(cat) {
+    var total = DB.tasks.filter(function(t){ return t.catId === cat.id; }).length;
+    var done  = DB.tasks.filter(function(t){ return t.catId === cat.id && t.done; }).length;
+    var div = document.createElement('div');
+    div.className = 'sb-cat' + (state.catFilter === cat.id ? ' active' : '');
+    div.setAttribute('role','button');
+    div.setAttribute('aria-label','Ver categoria ' + cat.name);
+    div.innerHTML = '<span class="sb-cat-emoji">'+cat.emoji+'</span><span class="sb-cat-name">'+cat.name+'</span><span class="sb-cat-count">'+done+'/'+total+'</span>';
+    div.onclick = function(){ selectCat(cat.id, cat.emoji+' '+cat.name); };
+    list.appendChild(div);
+  });
+  populateCatSelect();
+}
+
+function populateCatSelect() {
+  var sel = document.getElementById('taskCat');
+  sel.innerHTML = '';
+  DB.categories.forEach(function(cat){
+    var o = document.createElement('option');
+    o.value = cat.id; o.textContent = cat.emoji+' '+cat.name;
+    sel.appendChild(o);
+  });
+}
+
+// ── VIEWS ──
+function selectView(view, title, sub) {
+  state.view = view; state.catFilter = null;
+  document.querySelectorAll('.sb-item').forEach(function(i){ i.classList.remove('active'); });
+  var el = document.getElementById('view-'+view);
+  if (el) el.classList.add('active');
+  document.getElementById('viewTitle').textContent = title;
+  document.getElementById('viewSub').textContent = sub;
+  renderTasks();
+  if (window.innerWidth <= 600) closeSidebar();
+}
+
+function selectCat(catId, name) {
+  state.view = 'cat'; state.catFilter = catId;
+  document.querySelectorAll('.sb-item, .sb-cat').forEach(function(i){ i.classList.remove('active'); });
+  document.querySelectorAll('.sb-cat').forEach(function(el){
+    if (el.querySelector('.sb-cat-name') && el.querySelector('.sb-cat-name').textContent === name.slice(2)) el.classList.add('active');
+  });
+  document.getElementById('viewTitle').textContent = name;
+  document.getElementById('viewSub').textContent = 'por categoria';
+  renderTasks();
+  if (window.innerWidth <= 600) closeSidebar();
+}
+
+function switchTab(el, tab) {
+  state.tab = tab;
+  document.querySelectorAll('.dtab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  renderTasks();
+}
+
+// ── RENDER TASKS ──
+function renderTasks() {
+  var list = document.getElementById('taskList');
+  var today = todayStr();
+  var tomorrow = tomorrowStr();
+  var search = (document.getElementById('searchInput')||{}).value||'';
+  search = search.toLowerCase();
+
+  var tasks = DB.tasks.filter(function(t){
+    if (search && t.title.toLowerCase().indexOf(search) === -1) return false;
+    if (state.view === 'hoje')      return t.date === today;
+    if (state.view === 'amanha')    return t.date === tomorrow;
+    if (state.view === 'atrasadas') return t.date < today && !t.done;
+    if (state.view === 'cat')       return t.catId === state.catFilter;
+    return true;
+  });
+
+  // filter by tab for main views
+  if (state.view === 'todas' || state.view === 'cat') {
+    if (state.tab === 'hoje')   tasks = tasks.filter(function(t){ return t.date === today; });
+    if (state.tab === 'amanha') tasks = tasks.filter(function(t){ return t.date === tomorrow; });
+  }
+
+  var pending = tasks.filter(function(t){ return !t.done; });
+  var done    = tasks.filter(function(t){ return t.done; });
+
+  // progress
+  var total = tasks.length;
+  var doneCount = done.length;
+  var pct = total ? Math.round(doneCount/total*100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = doneCount + ' de ' + total + ' concluída' + (doneCount!==1?'s':'');
+
+  list.innerHTML = '';
+
+  if (tasks.length === 0) {
+    list.innerHTML = '<div class="empty" role="status"><svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="8" y="10" width="32" height="28" rx="6" stroke="rgba(200,169,126,0.3)" stroke-width="1.5"/><line x1="16" y1="19" x2="32" y2="19" stroke="rgba(200,169,126,0.3)" stroke-width="1.2" stroke-linecap="round"/><line x1="16" y1="24" x2="28" y2="24" stroke="rgba(200,169,126,0.2)" stroke-width="1.2" stroke-linecap="round"/><line x1="16" y1="29" x2="26" y2="29" stroke="rgba(200,169,126,0.2)" stroke-width="1.2" stroke-linecap="round"/></svg><p>Nenhuma tarefa aqui.<br>Toque em ＋ para adicionar.</p></div>';
+    return;
+  }
+
+  if (pending.length) {
+    var gl = document.createElement('div');
+    gl.className = 'group-label'; gl.textContent = 'Pendentes · ' + pending.length;
+    list.appendChild(gl);
+    pending.forEach(function(t){ list.appendChild(buildCard(t)); });
+  }
+  if (done.length) {
+    var gl2 = document.createElement('div');
+    gl2.className = 'group-label'; gl2.textContent = 'Concluídas · ' + done.length;
+    list.appendChild(gl2);
+    done.forEach(function(t){ list.appendChild(buildCard(t)); });
+  }
+  updateBadges();
+}
+
+function buildCard(task) {
+  var cat = DB.categories.find(function(c){ return c.id === task.catId; }) || {emoji:'📌',name:'Geral'};
+  var today = todayStr();
+  var overdue = task.date < today && !task.done;
+
+  var div = document.createElement('div');
+  div.className = 'task-card' + (task.done?' done':'');
+  div.setAttribute('role','listitem');
+  div.dataset.id = task.id;
+
+  var timeHtml = task.time ? '<span class="task-time">◷ '+task.time+'</span>' : '';
+  var badgeHtml = '';
+  if (task.shortcut) badgeHtml += '<span class="task-badge shortcut">⌘ Lembrete</span>';
+  if (overdue)       badgeHtml += '<span class="task-badge overdue">⚑ Atrasada</span>';
+
+  div.innerHTML =
+    '<div class="check'+(task.done?' done':'')+'" onclick="toggleTask(\''+task.id+'\')" role="checkbox" aria-checked="'+(task.done?'true':'false')+'" aria-label="'+(task.done?'Desmarcar':'Marcar como concluída')+'">' +
+      '<svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6L4.5 9L10.5 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+    '</div>' +
+    '<div class="task-info">' +
+      '<div class="task-title">'+escHtml(task.title)+'</div>' +
+      '<div class="task-meta">' +
+        '<span class="task-cat">'+cat.emoji+' '+cat.name+'</span>' +
+        timeHtml + badgeHtml +
+      '</div>' +
+    '</div>' +
+    '<div class="task-delete" onclick="deleteTask(\''+task.id+'\')" role="button" aria-label="Excluir tarefa">✕</div>';
+
+  return div;
+}
+
+// ── TASK ACTIONS ──
+function toggleTask(id) {
+  var t = DB.tasks.find(function(x){ return x.id===id; });
+  if (!t) return;
+  t.done = !t.done;
+  save(); renderTasks();
+}
+
+function deleteTask(id) {
+  var card = document.querySelector('[data-id="'+id+'"]');
+  if (card) { card.classList.add('removing'); setTimeout(function(){ finishDelete(id); }, 200); }
+  else finishDelete(id);
+}
+function finishDelete(id) {
+  DB.tasks = DB.tasks.filter(function(t){ return t.id!==id; });
+  save(); renderTasks();
+}
+
+// ── BADGES ──
+function updateBadges() {
+  var today    = todayStr();
+  var tomorrow = tomorrowStr();
+  var all      = DB.tasks;
+  set('badge-hoje',    all.filter(function(t){ return t.date===today&&!t.done; }).length);
+  set('badge-amanha',  all.filter(function(t){ return t.date===tomorrow&&!t.done; }).length);
+  set('badge-todas',   all.length);
+  var overdue = all.filter(function(t){ return t.date<today&&!t.done; }).length;
+  var ovEl = document.getElementById('badge-atrasadas');
+  if (overdue) { ovEl.textContent=overdue; ovEl.style.display=''; }
+  else ovEl.style.display='none';
+}
+function set(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
+
+// ── TASK MODAL ──
+function openTaskModal(editId) {
+  state.editId = editId || null;
+  document.getElementById('taskModalTitle').textContent = editId ? 'Editar tarefa' : 'Nova tarefa';
+  if (!editId) {
+    document.getElementById('taskTitle').value = '';
+    document.getElementById('taskTime').value = '';
+    document.getElementById('shortcutToggle').classList.add('on');
+    selectChip(document.querySelector('#chipRow .chip'), 'hoje');
+  }
+  document.getElementById('taskModal').classList.add('open');
+  setTimeout(function(){ document.getElementById('taskTitle').focus(); }, 350);
+}
+
+function saveTask() {
+  var title = document.getElementById('taskTitle').value.trim();
+  if (!title) { document.getElementById('taskTitle').focus(); return; }
+
+  var catId   = document.getElementById('taskCat').value;
+  var time    = document.getElementById('taskTime').value;
+  var useShortcut = document.getElementById('shortcutToggle').classList.contains('on');
+  var chip    = document.querySelector('#chipRow .chip.active');
+  var when    = chip ? chip.dataset.when : 'hoje';
+  var date    = when === 'amanha' ? tomorrowStr() : todayStr();
+
+  var task = {
+    id: state.editId || ('t'+Date.now()),
+    title: title, catId: catId, date: date,
+    time: time, done: false, shortcut: useShortcut,
+    createdAt: new Date().toISOString()
+  };
+
+  if (state.editId) {
+    var idx = DB.tasks.findIndex(function(t){ return t.id===state.editId; });
+    if (idx>-1) DB.tasks[idx] = task;
+  } else {
+    DB.tasks.unshift(task);
+  }
+
+  save();
+  closeModal('taskModal');
+  renderTasks();
+  renderSidebar();
+
+  if (useShortcut && time) {
+    triggerShortcut(title, date, time);
+  }
+}
+
+function triggerShortcut(title, date, time) {
+  var dt = date + 'T' + time + ':00';
+  var input = encodeURIComponent(JSON.stringify({ title: title, date: dt }));
+  var url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(DB.shortcutName) + '&input=' + input;
+  window.location.href = url;
+}
+
+// ── CATEGORY MODAL ──
+function openCatModal() {
+  selectedEmoji = EMOJIS[0];
+  var grid = document.getElementById('emojiGrid');
+  grid.innerHTML = '';
+  EMOJIS.forEach(function(e, i) {
+    var btn = document.createElement('div');
+    btn.className = 'emoji-btn' + (i===0?' selected':'');
+    btn.textContent = e;
+    btn.onclick = function(){
+      document.querySelectorAll('.emoji-btn').forEach(function(b){ b.classList.remove('selected'); });
+      btn.classList.add('selected'); selectedEmoji = e;
+    };
+    grid.appendChild(btn);
+  });
+  document.getElementById('catName').value = '';
+  document.getElementById('catModal').classList.add('open');
+  setTimeout(function(){ document.getElementById('catName').focus(); }, 350);
+}
+
+function saveCategory() {
+  var name = document.getElementById('catName').value.trim();
+  if (!name) return;
+  DB.categories.push({ id:'c'+Date.now(), emoji:selectedEmoji, name:name });
+  save(); renderSidebar();
+  closeModal('catModal');
+}
+
+// ── GUIDE ──
+function openGuide() {
+  document.getElementById('guideModal').classList.add('open');
+  if (window.innerWidth <= 600) closeSidebar();
+}
+
+// ── SIDEBAR ──
+function toggleSidebar() {
+  var s = document.getElementById('sidebar');
+  var o = document.getElementById('overlay');
+  if (s.classList.contains('open')) { closeSidebar(); }
+  else { s.classList.add('open'); o.classList.add('show'); }
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ── SEARCH ──
+function toggleSearch() {
+  var w = document.getElementById('searchWrap');
+  var visible = w.style.display !== 'none';
+  w.style.display = visible ? 'none' : 'block';
+  if (!visible) document.getElementById('searchInput').focus();
+  else { document.getElementById('searchInput').value = ''; renderTasks(); }
+}
+
+// ── CHIPS ──
+function selectChip(el, when) {
+  document.querySelectorAll('#chipRow .chip').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+  el.dataset.when = when;
+}
+
+// ── MODAL HELPERS ──
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeOnBg(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+
+function dismissBanner(e) {
+  e.stopPropagation();
+  document.getElementById('setupBanner').classList.remove('show');
+  DB.bannerDismissed = true; save();
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    ['taskModal','catModal','guideModal'].forEach(closeModal);
+    closeSidebar();
+  }
+  if (e.key === 'n' && !e.target.matches('input,select,textarea')) openTaskModal();
+});
+</script>
+</body>
+</html>

@@ -8,13 +8,13 @@
 <meta name="apple-mobile-web-app-title" content="Tarefas">
 <meta name="theme-color" content="#0f0f0f">
 <title>Tarefas</title>
- 
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
- 
+
 <!-- Apple Touch Icon inline via canvas -->
 <link rel="apple-touch-icon" id="appIcon">
- 
+
 <style>
 :root {
   --bg:      #0f0f0f;
@@ -40,9 +40,9 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-top: env(safe-area-inset-top, 0px);
 }
- 
+
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
- 
+
 html, body {
   height: 100%;
   background: var(--bg);
@@ -52,7 +52,7 @@ html, body {
   overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
 }
- 
+
 /* ───── LAYOUT ───── */
 .app {
   display: flex;
@@ -61,7 +61,7 @@ html, body {
   overflow: hidden;
   position: relative;
 }
- 
+
 /* ───── SIDEBAR ───── */
 .sidebar {
   width: 240px;
@@ -79,7 +79,7 @@ html, body {
   padding-bottom: 20px;
 }
 .sidebar::-webkit-scrollbar { display: none; }
- 
+
 @media (max-width: 600px) {
   .sidebar {
     position: absolute;
@@ -102,7 +102,7 @@ html, body {
   }
   .overlay.show { display: block; }
 }
- 
+
 .sb-top {
   padding: 20px 16px 10px;
   display: flex;
@@ -126,7 +126,7 @@ html, body {
   color: var(--text);
   letter-spacing: -0.01em;
 }
- 
+
 .sb-section {
   padding: 12px 16px 4px;
   font-size: 10px;
@@ -135,7 +135,7 @@ html, body {
   color: var(--text3);
   text-transform: uppercase;
 }
- 
+
 .sb-item {
   display: flex;
   align-items: center;
@@ -154,7 +154,7 @@ html, body {
 }
 .sb-item.active .sb-icon,
 .sb-item.active .sb-name { color: var(--gold); }
- 
+
 .sb-icon {
   width: 17px; text-align: center;
   font-size: 15px;
@@ -175,9 +175,9 @@ html, body {
 }
 .sb-badge.gold { background: var(--gold2); color: var(--gold); }
 .sb-badge.red  { background: var(--red2);  color: var(--red);  }
- 
+
 .sb-divider { height: 0.5px; background: var(--border); margin: 8px 16px; }
- 
+
 .sb-cat {
   display: flex; align-items: center; gap: 9px;
   padding: 7px 10px;
@@ -193,7 +193,7 @@ html, body {
 .sb-cat-emoji { font-size: 14px; width: 18px; text-align: center; }
 .sb-cat-name { font-size: 13px; color: var(--text2); flex: 1; }
 .sb-cat-count { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; }
- 
+
 .sb-add-cat {
   display: flex; align-items: center; gap: 8px;
   padding: 7px 10px; margin: 4px 8px;
@@ -203,7 +203,7 @@ html, body {
   font-size: 12px;
 }
 .sb-add-cat:hover { border-color: var(--gold); color: var(--gold); background: var(--gold3); }
- 
+
 /* ───── MAIN ───── */
 .main {
   flex: 1;
@@ -212,7 +212,7 @@ html, body {
   overflow: hidden;
   min-width: 0;
 }
- 
+
 .topbar {
   display: flex;
   align-items: center;
@@ -230,7 +230,7 @@ html, body {
   flex-shrink: 0;
 }
 .menu-btn:hover { background: var(--bg3); color: var(--text); }
- 
+
 .topbar-title { flex: 1; min-width: 0; }
 .topbar-title h1 {
   font-size: 16px; font-weight: 600;
@@ -241,7 +241,7 @@ html, body {
   font-size: 11px; color: var(--text3);
   margin-top: 1px; font-family: 'DM Mono', monospace;
 }
- 
+
 /* ───── DATE TABS ───── */
 .date-tabs {
   display: flex; gap: 4px;
@@ -264,7 +264,7 @@ html, body {
   font-weight: 600;
   border-color: var(--gold);
 }
- 
+
 /* ───── PROGRESS BAR ───── */
 .progress-wrap {
   padding: 10px 16px 0;
@@ -288,7 +288,7 @@ html, body {
   margin-top: 4px;
   font-family: 'DM Mono', monospace;
 }
- 
+
 /* ───── TASK LIST ───── */
 .task-list {
   flex: 1; overflow-y: auto;
@@ -298,14 +298,14 @@ html, body {
   padding-bottom: calc(80px + var(--safe-bottom));
 }
 .task-list::-webkit-scrollbar { display: none; }
- 
+
 .group-label {
   font-size: 10px; font-weight: 600;
   letter-spacing: 0.08em; color: var(--text3);
   text-transform: uppercase;
   padding: 10px 4px 5px;
 }
- 
+
 .task-card {
   background: var(--bg2);
   border: 0.5px solid var(--border);
@@ -321,7 +321,7 @@ html, body {
   user-select: none;
   -webkit-user-select: none;
 }
- 
+
 /* swipe reveal background */
 .task-card::before {
   content: '✓';
@@ -340,7 +340,7 @@ html, body {
 .task-card.swiping::before {
   transform: translateX(0);
 }
- 
+
 /* mercado: reveal on right side (swipe left) */
 .task-card.mercado-card::before {
   left: auto; right: 0;
@@ -350,7 +350,7 @@ html, body {
 .task-card.mercado-card.swiping::before {
   transform: translateX(0);
 }
- 
+
 .task-card-inner {
   display: flex; align-items: center; gap: 10px;
   width: 100%;
@@ -375,7 +375,7 @@ html, body {
 @keyframes cardOut {
   to { opacity: 0; transform: translateX(60px) scale(0.95); max-height: 0; padding: 0; margin: 0; border: none; }
 }
- 
+
 .check {
   width: 22px; height: 22px;
   border-radius: 50%;
@@ -391,7 +391,7 @@ html, body {
 .check.done { background: var(--green); border-color: var(--green); }
 .check svg { width: 11px; height: 11px; opacity: 0; transition: opacity 0.15s; }
 .check.done svg { opacity: 1; }
- 
+
 .task-info { flex: 1; min-width: 0; }
 .task-title { font-size: 13px; color: var(--text); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .task-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; flex-wrap: wrap; }
@@ -404,7 +404,7 @@ html, body {
 }
 .task-badge.shortcut { background: var(--blue2); color: var(--blue); }
 .task-badge.overdue  { background: var(--red2);  color: var(--red);  }
- 
+
 .task-delete {
   width: 28px; height: 28px;
   border-radius: 8px;
@@ -419,7 +419,7 @@ html, body {
 @media (hover: none) {
   .task-delete { opacity: 0.4; }
 }
- 
+
 /* swipe hint on first load */
 .swipe-hint {
   font-size: 10px; color: var(--text3);
@@ -434,7 +434,7 @@ html, body {
   60%  { opacity: 0.6; }
   100% { opacity: 0; }
 }
- 
+
 /* empty state */
 .empty {
   flex: 1; display: flex; flex-direction: column;
@@ -445,7 +445,7 @@ html, body {
 }
 .empty svg { opacity: 0.3; }
 .empty p { font-size: 13px; text-align: center; line-height: 1.5; }
- 
+
 /* ───── FAB ───── */
 .fab {
   position: absolute;
@@ -464,7 +464,7 @@ html, body {
 }
 .fab:hover { transform: scale(1.06); }
 .fab:active { transform: scale(0.94); }
- 
+
 /* ───── MODAL ───── */
 .modal-bg {
   display: none;
@@ -474,7 +474,7 @@ html, body {
   align-items: flex-end;
 }
 .modal-bg.open { display: flex; }
- 
+
 .modal {
   background: var(--bg2);
   border-radius: 22px 22px 0 0;
@@ -496,7 +496,7 @@ html, body {
   font-size: 15px; font-weight: 600;
   color: var(--text); margin-bottom: 16px;
 }
- 
+
 .form-field { margin-bottom: 13px; }
 .form-label {
   display: block; font-size: 10px; font-weight: 600;
@@ -518,10 +518,10 @@ html, body {
 }
 .form-input:focus, .form-select:focus { border-color: var(--gold); }
 .form-input::placeholder { color: var(--text3); }
- 
+
 .form-row { display: flex; gap: 8px; }
 .form-row .form-field { flex: 1; }
- 
+
 .chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
 .chip {
   padding: 6px 13px; border-radius: 20px;
@@ -533,7 +533,7 @@ html, body {
 }
 .chip:hover { color: var(--text2); border-color: var(--border2); background: var(--bg3); }
 .chip.active { background: var(--gold2); border-color: var(--gold); color: var(--gold); }
- 
+
 /* shortcuts row */
 .shortcut-row {
   display: flex; align-items: center; gap: 10px;
@@ -561,7 +561,7 @@ html, body {
   transition: transform 0.2s;
 }
 .toggle.on::after { transform: translateX(15px); }
- 
+
 .btn-save {
   width: 100%; padding: 13px;
   background: var(--gold);
@@ -574,7 +574,7 @@ html, body {
 }
 .btn-save:hover { opacity: 0.9; }
 .btn-save:active { transform: scale(0.98); opacity: 0.8; }
- 
+
 /* ───── CAT MODAL ───── */
 .emoji-grid {
   display: grid; grid-template-columns: repeat(7, 1fr);
@@ -590,7 +590,7 @@ html, body {
 }
 .emoji-btn:hover { background: var(--bg4); }
 .emoji-btn.selected { border-color: var(--gold); background: var(--gold2); }
- 
+
 /* ───── SETUP BANNER ───── */
 .setup-banner {
   display: none;
@@ -609,7 +609,7 @@ html, body {
 .setup-banner-text strong { font-size: 12px; font-weight: 600; color: var(--blue); display: block; margin-bottom: 2px; }
 .setup-banner-text span { font-size: 11px; color: rgba(91,141,238,0.75); line-height: 1.4; }
 .setup-banner-close { font-size: 14px; color: var(--blue); opacity: 0.5; padding: 2px; cursor: pointer; flex-shrink: 0; }
- 
+
 /* ───── GUIDE MODAL ───── */
 .guide-modal {
   background: var(--bg2);
@@ -648,10 +648,10 @@ html, body {
 </style>
 </head>
 <body>
- 
+
 <div class="app">
   <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
- 
+
   <!-- SIDEBAR -->
   <nav class="sidebar" id="sidebar" role="navigation" aria-label="Menu de navegação">
     <div class="sb-top">
@@ -669,9 +669,9 @@ html, body {
       </div>
       <span class="sb-app-name">Tarefas</span>
     </div>
- 
+
     <div class="sb-section">Visão</div>
- 
+
     <div class="sb-item active" onclick="selectView('hoje','Hoje','tarefas de hoje')" id="view-hoje" role="button" aria-label="Ver tarefas de hoje">
       <span class="sb-icon">☀</span>
       <span class="sb-name">Hoje</span>
@@ -692,25 +692,25 @@ html, body {
       <span class="sb-name">Todas</span>
       <span class="sb-badge" id="badge-todas">0</span>
     </div>
- 
+
     <div class="sb-divider"></div>
     <div class="sb-section">Categorias</div>
- 
+
     <div id="catList"></div>
- 
+
     <div class="sb-add-cat" onclick="openCatModal()" role="button" aria-label="Adicionar nova categoria">
       <span style="font-size:14px">＋</span>
       <span>Nova categoria</span>
     </div>
- 
+
     <div class="sb-divider"></div>
- 
+
     <div class="sb-item" onclick="openGuide()" role="button" aria-label="Configurar atalhos do iPhone">
       <span class="sb-icon" style="color:var(--blue)">⌘</span>
       <span class="sb-name" style="color:var(--blue)">Config. Atalhos</span>
     </div>
   </nav>
- 
+
   <!-- MAIN -->
   <main class="main" role="main">
     <div class="topbar">
@@ -721,12 +721,12 @@ html, body {
       </div>
       <div class="menu-btn" onclick="toggleSearch()" aria-label="Buscar">⌕</div>
     </div>
- 
+
     <!-- search bar (hidden by default) -->
     <div id="searchWrap" style="display:none;padding:8px 12px 0;flex-shrink:0">
       <input class="form-input" id="searchInput" placeholder="Buscar tarefas…" oninput="renderTasks()" style="font-size:13px">
     </div>
- 
+
     <div class="setup-banner" id="setupBanner" onclick="openGuide()">
       <span class="icon">🔔</span>
       <div class="setup-banner-text">
@@ -735,40 +735,40 @@ html, body {
       </div>
       <span class="setup-banner-close" onclick="dismissBanner(event)">✕</span>
     </div>
- 
+
     <div class="date-tabs">
       <div class="dtab active" onclick="switchTab(this,'hoje')" id="dtab-hoje">Hoje</div>
       <div class="dtab" onclick="switchTab(this,'amanha')" id="dtab-amanha">Amanhã</div>
     </div>
- 
+
     <div class="progress-wrap" id="progressWrap">
       <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       <div class="progress-label" id="progressLabel">0 de 0 concluídas</div>
     </div>
- 
+
     <div class="task-list" id="taskList" role="list"></div>
- 
+
     <div class="fab" onclick="openTaskModal()" aria-label="Adicionar nova tarefa">＋</div>
   </main>
 </div>
- 
+
 <!-- ── TASK MODAL ── -->
 <div class="modal-bg" id="taskModal" onclick="closeOnBg(event,'taskModal')" role="dialog" aria-modal="true" aria-label="Nova tarefa">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title" id="taskModalTitle">Nova tarefa</div>
- 
+
     <div class="form-field">
       <label class="form-label">Título</label>
       <input class="form-input" id="taskTitle" placeholder="Ex: Comprar temperos…" maxlength="80">
     </div>
- 
+
     <!-- horário: mostrado em ambos os contextos -->
     <div class="form-field" id="timeFieldWrap">
       <label class="form-label">Horário (opcional)</label>
       <input class="form-input" type="time" id="taskTime" style="font-family:'DM Mono',monospace;font-size:16px">
     </div>
- 
+
     <!-- reminder: só na aba visão -->
     <div class="shortcut-row" id="reminderRow" style="display:none">
       <span class="icon">🔔</span>
@@ -780,14 +780,14 @@ html, body {
         <div class="toggle" id="shortcutToggle" onclick="this.classList.toggle('on')" role="switch" aria-checked="false" aria-label="Adicionar ao Lembretes"></div>
       </div>
     </div>
- 
+
     <!-- campo hidden para manter compatibilidade com saveTask -->
     <select id="taskCat" style="display:none"></select>
- 
+
     <button class="btn-save" onclick="saveTask()">Salvar</button>
   </div>
 </div>
- 
+
 <!-- ── CATEGORY MODAL ── -->
 <div class="modal-bg" id="catModal" onclick="closeOnBg(event,'catModal')" role="dialog" aria-modal="true" aria-label="Nova categoria">
   <div class="modal">
@@ -812,7 +812,7 @@ html, body {
     <button class="btn-save" onclick="saveCategory()">Criar categoria</button>
   </div>
 </div>
- 
+
 <!-- ── GUIDE MODAL (Atalhos setup) ── -->
 <div class="modal-bg" id="guideModal" onclick="closeOnBg(event,'guideModal')" role="dialog" aria-modal="true" aria-label="Como configurar o app Atalhos">
   <div class="guide-modal">
@@ -821,7 +821,7 @@ html, body {
       <span style="font-size:18px">🔔</span> Configurar Lembretes
     </div>
     <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5">Configure o app <strong style="color:var(--text)">Atalhos</strong> uma vez. Depois, qualquer tarefa da aba Visão com o toggle 🔔 ativo criará um lembrete automaticamente.</p>
- 
+
     <div class="step-item">
       <div class="step-num">1</div>
       <div class="step-body">
@@ -859,11 +859,11 @@ html, body {
         <p>Nas configurações do atalho (ícone ⋯), ative <strong style="color:var(--text)">Usar sem perguntar</strong> para que funcione em segundo plano.</p>
       </div>
     </div>
- 
+
     <button class="btn-save" style="margin-top:8px" onclick="closeModal('guideModal')">Entendi, fechar</button>
   </div>
 </div>
- 
+
 <script>
 // ── DATA ──
 var DB = {
@@ -877,17 +877,17 @@ var DB = {
   shortcutName: 'AddLembrete 1',
   bannerDismissed: false
 };
- 
+
 var state = {
   view: 'hoje',
   catFilter: null,
   tab: 'hoje',
   editId: null
 };
- 
+
 var EMOJIS = ['🛒','🏠','💼','💊','🎓','🏋️','🚗','✈️','🎮','📚','🎵','🍳','🐶','🌱','💰','📸','🧹','👶','❤️','🔧','🎁','☕','🏖️','🎯'];
 var selectedEmoji = EMOJIS[0];
- 
+
 function save() { try { localStorage.setItem('tarefas_db', JSON.stringify(DB)); } catch(e){} }
 function load() {
   try {
@@ -907,10 +907,10 @@ function load() {
     }
   } catch(e){}
 }
- 
+
 function todayStr() { return new Date().toISOString().slice(0,10); }
 function tomorrowStr() { var d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); }
- 
+
 // ── INIT ──
 load();
 migrateDates();
@@ -919,7 +919,7 @@ renderSidebar();
 renderTasks();
 updateBadges();
 if (!DB.bannerDismissed) document.getElementById('setupBanner').classList.add('show');
- 
+
 function migrateDates() {
   var today = todayStr();
   DB.tasks.forEach(function(t){
@@ -927,7 +927,7 @@ function migrateDates() {
     if (t.date === 'amanha') { var d = new Date(today); d.setDate(d.getDate()+1); t.date = d.toISOString().slice(0,10); }
   });
 }
- 
+
 // ── ICON ──
 function buildIcon() {
   var c = document.createElement('canvas');
@@ -979,7 +979,7 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 function fillRR(ctx, x, y, w, h, r) { roundRect(ctx, x, y, w, h, r); ctx.fill(); }
- 
+
 // ── SIDEBAR ──
 function renderSidebar() {
   var list = document.getElementById('catList');
@@ -996,7 +996,7 @@ function renderSidebar() {
     list.appendChild(div);
   });
 }
- 
+
 // ── VIEWS ──
 function selectView(view, title, sub) {
   state.view = view; state.catFilter = null;
@@ -1008,7 +1008,7 @@ function selectView(view, title, sub) {
   renderTasks();
   if (window.innerWidth <= 600) closeSidebar();
 }
- 
+
 function selectCat(catId, name) {
   state.view = 'cat'; state.catFilter = catId;
   document.querySelectorAll('.sb-item, .sb-cat').forEach(function(i){ i.classList.remove('active'); });
@@ -1020,14 +1020,14 @@ function selectCat(catId, name) {
   renderTasks();
   if (window.innerWidth <= 600) closeSidebar();
 }
- 
+
 function switchTab(el, tab) {
   state.tab = tab;
   document.querySelectorAll('.dtab').forEach(function(t){ t.classList.remove('active'); });
   el.classList.add('active');
   renderTasks();
 }
- 
+
 // ── RENDER TASKS ──
 function renderTasks() {
   var list = document.getElementById('taskList');
@@ -1035,13 +1035,13 @@ function renderTasks() {
   var tomorrow = tomorrowStr();
   var search = (document.getElementById('searchInput')||{}).value||'';
   search = search.toLowerCase();
- 
+
   // helper: is this task from a "category" (Mercado, Casa etc) — not for vision views
   function taskIsCat(t) {
     var c = DB.categories.find(function(x){ return x.id === t.catId; });
     return c && c.isCat;
   }
- 
+
   var tasks = DB.tasks.filter(function(t){
     if (search && t.title.toLowerCase().indexOf(search) === -1) return false;
     if (state.view === 'hoje') {
@@ -1061,30 +1061,30 @@ function renderTasks() {
     }
     return true;
   });
- 
+
   // date tab filter only for vision views (not cat view)
   if (state.view === 'todas') {
     if (state.tab === 'hoje')   tasks = tasks.filter(function(t){ return t.date === today; });
     if (state.tab === 'amanha') tasks = tasks.filter(function(t){ return t.date === tomorrow; });
   }
- 
+
   var pending = tasks.filter(function(t){ return !t.done; });
   var done    = tasks.filter(function(t){ return t.done; });
- 
+
   // progress
   var total = tasks.length;
   var doneCount = done.length;
   var pct = total ? Math.round(doneCount/total*100) : 0;
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressLabel').textContent = doneCount + ' de ' + total + ' concluída' + (doneCount!==1?'s':'');
- 
+
   list.innerHTML = '';
- 
+
   if (tasks.length === 0) {
     list.innerHTML = '<div class="empty" role="status"><svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="8" y="10" width="32" height="28" rx="6" stroke="rgba(200,169,126,0.3)" stroke-width="1.5"/><line x1="16" y1="19" x2="32" y2="19" stroke="rgba(200,169,126,0.3)" stroke-width="1.2" stroke-linecap="round"/><line x1="16" y1="24" x2="28" y2="24" stroke="rgba(200,169,126,0.2)" stroke-width="1.2" stroke-linecap="round"/><line x1="16" y1="29" x2="26" y2="29" stroke="rgba(200,169,126,0.2)" stroke-width="1.2" stroke-linecap="round"/></svg><p>Nenhuma tarefa aqui.<br>Toque em ＋ para adicionar.</p></div>';
     return;
   }
- 
+
   if (pending.length) {
     var gl = document.createElement('div');
     gl.className = 'group-label'; gl.textContent = 'Pendentes · ' + pending.length;
@@ -1107,34 +1107,34 @@ function renderTasks() {
   }
   updateBadges();
 }
- 
+
 function buildCard(task) {
   var cat = DB.categories.find(function(c){ return c.id === task.catId; }) || {emoji:'📌',name:'Geral'};
   var today = todayStr();
   var overdue = task.date < today && !task.done;
   // market mode: category named Mercado or emoji 🛒
   var isMercado = cat.emoji === '🛒' || cat.name === 'Mercado';
- 
+
   var div = document.createElement('div');
   div.className = 'task-card' + (task.done?' done':'') + (isMercado?' mercado-card':'');
   div.setAttribute('role','listitem');
   div.dataset.id = task.id;
- 
+
   var timeHtml = task.time ? '<span class="task-time">◷ '+task.time+'</span>' : '';
   var badgeHtml = '';
   if (task.shortcut) badgeHtml += '<span class="task-badge shortcut">🔔 Lembrete</span>';
   if (overdue)       badgeHtml += '<span class="task-badge overdue">⚑ Atrasada</span>';
- 
+
   var inner = document.createElement('div');
   inner.className = 'task-card-inner';
- 
+
   var checkHtml = isMercado ? '' :
     '<div class="check'+(task.done?' done':'')+'" onclick="toggleTask(\''+task.id+'\')" role="checkbox" aria-checked="'+(task.done?'true':'false')+'" aria-label="'+(task.done?'Desmarcar':'Marcar como concluída')+'">' +
       '<svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6L4.5 9L10.5 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
     '</div>';
- 
+
   var catHtml = task.catId ? '<span class="task-cat">'+cat.emoji+' '+cat.name+'</span>' : '';
- 
+
   inner.innerHTML =
     checkHtml +
     '<div class="task-info">' +
@@ -1145,27 +1145,27 @@ function buildCard(task) {
       '</div>' +
     '</div>' +
     '<div class="task-delete" onclick="deleteTask(\''+task.id+'\')" role="button" aria-label="Excluir tarefa">✕</div>';
- 
+
   div.appendChild(inner);
- 
+
   // swipe gesture
   if (!task.done) {
     var startX = 0, startY = 0, dx = 0;
     var threshold = 90;
     var active = false;
- 
+
     inner.addEventListener('touchstart', function(e) {
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       dx = 0; active = true;
     }, {passive: true});
- 
+
     inner.addEventListener('touchmove', function(e) {
       if (!active) return;
       dx = e.touches[0].clientX - startX;
       var dy = Math.abs(e.touches[0].clientY - startY);
       if (dy > Math.abs(dx) + 10) { active = false; inner.style.transform = ''; div.classList.remove('swiping'); return; }
- 
+
       if (isMercado) {
         // swipe left to complete for mercado
         if (dx < 0) {
@@ -1186,7 +1186,7 @@ function buildCard(task) {
         }
       }
     }, {passive: false});
- 
+
     function onSwipeEnd() {
       if (!active) return;
       active = false;
@@ -1201,14 +1201,14 @@ function buildCard(task) {
         setTimeout(function(){ inner.style.transition = ''; }, 200);
       }
     }
- 
+
     inner.addEventListener('touchend', onSwipeEnd, {passive: true});
     inner.addEventListener('touchcancel', onSwipeEnd, {passive: true});
   }
- 
+
   return div;
 }
- 
+
 // ── TASK ACTIONS ──
 function toggleTask(id) {
   var t = DB.tasks.find(function(x){ return x.id===id; });
@@ -1216,7 +1216,7 @@ function toggleTask(id) {
   t.done = !t.done;
   save(); renderTasks();
 }
- 
+
 function deleteTask(id) {
   var card = document.querySelector('[data-id="'+id+'"]');
   if (card) { card.classList.add('removing'); setTimeout(function(){ finishDelete(id); }, 200); }
@@ -1226,18 +1226,18 @@ function finishDelete(id) {
   DB.tasks = DB.tasks.filter(function(t){ return t.id!==id; });
   save(); renderTasks();
 }
- 
+
 // ── BADGES ──
 function updateBadges() {
   var today    = todayStr();
   var tomorrow = tomorrowStr();
   var all      = DB.tasks;
- 
+
   function notCat(t) {
     var c = DB.categories.find(function(x){ return x.id === t.catId; });
     return !(c && c.isCat);
   }
- 
+
   set('badge-hoje',    all.filter(function(t){ return t.date===today&&!t.done&&notCat(t); }).length);
   set('badge-amanha',  all.filter(function(t){ return t.date===tomorrow&&!t.done&&notCat(t); }).length);
   set('badge-todas',   all.filter(notCat).length);
@@ -1247,7 +1247,7 @@ function updateBadges() {
   else ovEl.style.display='none';
 }
 function set(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
- 
+
 // ── TASK MODAL ──
 function openTaskModal(editId) {
   state.editId = editId || null;
@@ -1257,29 +1257,29 @@ function openTaskModal(editId) {
     document.getElementById('taskTime').value = '';
     document.getElementById('shortcutToggle').classList.remove('on');
   }
- 
+
   var inCatView = state.view === 'cat';
- 
+
   // Na aba de categoria: sem lembrete (toggle oculto)
   // Na aba visão: mostrar toggle de lembrete
   document.getElementById('reminderRow').style.display = inCatView ? 'none' : 'flex';
- 
+
   document.getElementById('taskModal').classList.add('open');
   setTimeout(function(){ document.getElementById('taskTitle').focus(); }, 350);
 }
- 
+
 function saveTask() {
   var title = document.getElementById('taskTitle').value.trim();
   if (!title) { document.getElementById('taskTitle').focus(); return; }
- 
+
   var time = document.getElementById('taskTime').value;
   var inCatView = state.view === 'cat';
- 
+
   // Na aba categoria: usa o catId da aba. Na visão: sem categoria (null)
   var catId = inCatView ? state.catFilter : null;
   var useReminder = !inCatView && document.getElementById('shortcutToggle').classList.contains('on');
   var date = todayStr();
- 
+
   var task = {
     id: state.editId || ('t' + Date.now()),
     title: title,
@@ -1290,36 +1290,43 @@ function saveTask() {
     shortcut: useReminder,
     createdAt: new Date().toISOString()
   };
- 
+
   if (state.editId) {
     var idx = DB.tasks.findIndex(function(t){ return t.id === state.editId; });
     if (idx > -1) DB.tasks[idx] = task;
   } else {
     DB.tasks.unshift(task);
   }
- 
+
   save();
   closeModal('taskModal');
   renderTasks();
   renderSidebar();
- 
+
   if (useReminder) {
     triggerReminder(title, date, time);
   }
 }
- 
+
 function triggerReminder(title, date, time) {
-  // shortcuts:// is the only method that works reliably in iOS PWA (no file downloads)
-  // Passes title + datetime to the configured Shortcut which adds to Reminders
-  var dt = time ? (date + 'T' + time + ':00') : date;
-  var payload = JSON.stringify({ title: title, date: dt });
-  var url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(DB.shortcutName)
-          + '&input=text&text=' + encodeURIComponent(payload);
-  window.location.href = url;
+  if (navigator.share) {
+    var text = title;
+    if (time) {
+      text += ' (às ' + time + ')';
+    }
+    navigator.share({
+      title: 'Lembrete',
+      text: text
+    }).catch(function(err) {
+      console.log('Erro ao compartilhar:', err);
+    });
+  } else {
+    alert('Esta função requer um dispositivo compatível com compartilhamento nativo.');
+  }
 }
- 
+
 var newCatIsCat = false;
- 
+
 function selectCatType(isCat) {
   newCatIsCat = isCat;
   document.getElementById('catTypeVisao').classList.toggle('active', !isCat);
@@ -1328,7 +1335,7 @@ function selectCatType(isCat) {
     ? 'Aparece na barra lateral como lista separada (Mercado, Casa…).'
     : 'Aparece nas abas Hoje / Amanhã / Todas.';
 }
- 
+
 // ── CATEGORY MODAL ──
 function openCatModal() {
   newCatIsCat = false;
@@ -1350,7 +1357,7 @@ function openCatModal() {
   document.getElementById('catModal').classList.add('open');
   setTimeout(function(){ document.getElementById('catName').focus(); }, 350);
 }
- 
+
 function saveCategory() {
   var name = document.getElementById('catName').value.trim();
   if (!name) return;
@@ -1358,13 +1365,13 @@ function saveCategory() {
   save(); renderSidebar();
   closeModal('catModal');
 }
- 
+
 // ── GUIDE ──
 function openGuide() {
   document.getElementById('guideModal').classList.add('open');
   if (window.innerWidth <= 600) closeSidebar();
 }
- 
+
 // ── SIDEBAR ──
 function toggleSidebar() {
   var s = document.getElementById('sidebar');
@@ -1376,7 +1383,7 @@ function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('overlay').classList.remove('show');
 }
- 
+
 // ── SEARCH ──
 function toggleSearch() {
   var w = document.getElementById('searchWrap');
@@ -1385,28 +1392,28 @@ function toggleSearch() {
   if (!visible) document.getElementById('searchInput').focus();
   else { document.getElementById('searchInput').value = ''; renderTasks(); }
 }
- 
+
 // ── CHIPS ──
 function selectChip(el, when) {
   document.querySelectorAll('#chipRow .chip').forEach(function(c){ c.classList.remove('active'); });
   el.classList.add('active');
   el.dataset.when = when;
 }
- 
+
 // ── MODAL HELPERS ──
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function closeOnBg(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
- 
+
 function dismissBanner(e) {
   e.stopPropagation();
   document.getElementById('setupBanner').classList.remove('show');
   DB.bannerDismissed = true; save();
 }
- 
+
 function escHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
- 
+
 // keyboard shortcuts
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {

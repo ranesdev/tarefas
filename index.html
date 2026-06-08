@@ -1309,20 +1309,13 @@ function saveTask() {
 }
 
 function triggerReminder(title, date, time) {
-  if (navigator.share) {
-    var text = title;
-    if (time) {
-      text += ' (às ' + time + ')';
-    }
-    navigator.share({
-      title: 'Lembrete',
-      text: text
-    }).catch(function(err) {
-      console.log('Erro ao compartilhar:', err);
-    });
-  } else {
-    alert('Esta função requer um dispositivo compatível com compartilhamento nativo.');
-  }
+  // shortcuts:// is the only method that works reliably in iOS PWA (no file downloads)
+  // Passes title + datetime to the configured Shortcut which adds to Reminders
+  var dt = time ? (date + 'T' + time + ':00') : date;
+  var payload = JSON.stringify({ title: title, date: dt });
+  var url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(DB.shortcutName)
+          + '&input=text&text=' + encodeURIComponent(payload);
+  window.location.href = url;
 }
 
 var newCatIsCat = false;

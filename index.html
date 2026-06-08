@@ -728,10 +728,10 @@ html, body {
     </div>
 
     <div class="setup-banner" id="setupBanner" onclick="openGuide()">
-      <span class="icon">⌘</span>
+      <span class="icon">🔔</span>
       <div class="setup-banner-text">
-        <strong>Configure os Atalhos do iPhone</strong>
-        <span>Para criar lembretes automáticos ao salvar uma tarefa, configure o app Atalhos. Toque para ver o guia.</span>
+        <strong>Configure os Lembretes</strong>
+        <span>Crie lembretes automáticos via app Atalhos. Toque para ver o guia de configuração.</span>
       </div>
       <span class="setup-banner-close" onclick="dismissBanner(event)">✕</span>
     </div>
@@ -764,28 +764,29 @@ html, body {
     </div>
 
     <div class="form-row">
-      <div class="form-field">
+      <div class="form-field" id="catFieldWrap">
         <label class="form-label">Categoria</label>
         <select class="form-select" id="taskCat" style="color:var(--text)"></select>
       </div>
-      <div class="form-field">
+      <div class="form-field" id="timeFieldWrap">
         <label class="form-label">Horário (opcional)</label>
         <input class="form-input" type="time" id="taskTime" style="font-family:'DM Mono',monospace;font-size:16px">
       </div>
     </div>
 
-    <div class="shortcut-row" id="reminderRow">
+    <!-- reminder row: shown only in vision views -->
+    <div class="shortcut-row" id="reminderRow" style="display:none">
       <span class="icon">🔔</span>
       <div class="shortcut-text">
         <strong>Adicionar ao Lembretes</strong>
-        Abre o app Lembretes do iPhone
+        <span style="font-size:10px;opacity:0.7">Via app Atalhos · requer configuração</span>
       </div>
       <div class="toggle-wrap">
-        <div class="toggle on" id="shortcutToggle" onclick="this.classList.toggle('on')" role="switch" aria-checked="true" aria-label="Adicionar ao Lembretes"></div>
+        <div class="toggle" id="shortcutToggle" onclick="this.classList.toggle('on')" role="switch" aria-checked="false" aria-label="Adicionar ao Lembretes"></div>
       </div>
     </div>
 
-    <button class="btn-save" onclick="saveTask()">Salvar tarefa</button>
+    <button class="btn-save" onclick="saveTask()">Salvar</button>
   </div>
 </div>
 
@@ -819,51 +820,45 @@ html, body {
   <div class="guide-modal">
     <div class="modal-handle"></div>
     <div class="modal-title" style="display:flex;align-items:center;gap:8px">
-      <span style="font-size:18px">⌘</span> Como configurar os Atalhos
+      <span style="font-size:18px">🔔</span> Configurar Lembretes
     </div>
-    <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5">Configure uma vez e toda tarefa com o toggle ativado criará automaticamente um lembrete no iPhone.</p>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5">Configure o app <strong style="color:var(--text)">Atalhos</strong> uma vez. Depois, qualquer tarefa da aba Visão com o toggle 🔔 ativo criará um lembrete automaticamente.</p>
 
     <div class="step-item">
       <div class="step-num">1</div>
       <div class="step-body">
-        <strong>Abra o app Atalhos no iPhone</strong>
-        <p>Procure o ícone laranja na sua tela inicial ou busque por "Atalhos" no Spotlight.</p>
+        <strong>Abra o app Atalhos</strong>
+        <p>Ícone laranja na tela inicial. Toque em <strong style="color:var(--text)">＋</strong> para criar um novo atalho.</p>
       </div>
     </div>
     <div class="step-item">
       <div class="step-num">2</div>
       <div class="step-body">
-        <strong>Crie um novo atalho</strong>
-        <p>Toque no botão "＋" no canto superior direito para criar um novo atalho em branco.</p>
+        <strong>Adicione a ação "Obter valor do dicionário"</strong>
+        <p>Busque por <strong style="color:var(--text)">Dicionário</strong> → <strong style="color:var(--text)">Obter valor do dicionário</strong>. Configure:</p>
+        <p style="margin-top:4px">• Chave: <code>title</code> &nbsp;• De: <code>Entrada do atalho</code></p>
       </div>
     </div>
     <div class="step-item">
       <div class="step-num">3</div>
       <div class="step-body">
-        <strong>Adicione a ação "Adicionar novo lembrete"</strong>
-        <p>Toque em "Adicionar ação", busque por <strong style="color:var(--text)">Lembrete</strong> e selecione <strong style="color:var(--text)">Adicionar novo lembrete</strong>.</p>
+        <strong>Adicione "Adicionar novo lembrete"</strong>
+        <p>Busque por <strong style="color:var(--text)">Lembrete</strong> → <strong style="color:var(--text)">Adicionar novo lembrete</strong>.</p>
+        <p style="margin-top:4px">• Título: selecione o resultado da etapa 2 (Valor do dicionário)</p>
       </div>
     </div>
     <div class="step-item">
       <div class="step-num">4</div>
       <div class="step-body">
-        <strong>Configure os campos</strong>
-        <p>No campo Título, toque em "Lembrete" e selecione <strong style="color:var(--text)">Entrada do atalho</strong>. Ative também Data e Hora para receber a notificação no horário certo.</p>
+        <strong>Nomeie o atalho exatamente:</strong>
+        <code>AddLembrete</code>
       </div>
     </div>
     <div class="step-item">
       <div class="step-num">5</div>
       <div class="step-body">
-        <strong>Nomeie o atalho exatamente assim:</strong>
-        <p>O nome precisa ser exato para o app funcionar corretamente.</p>
-        <code>AddLembrete</code>
-      </div>
-    </div>
-    <div class="step-item">
-      <div class="step-num">6</div>
-      <div class="step-body">
-        <strong>Pronto! Teste agora</strong>
-        <p>Volte ao app, crie uma tarefa com horário e o toggle azul ativado. O Atalhos será chamado automaticamente e criará o lembrete com o título e horário que você definiu.</p>
+        <strong>Permita execução sem confirmação</strong>
+        <p>Nas configurações do atalho (ícone ⋯), ative <strong style="color:var(--text)">Usar sem perguntar</strong> para que funcione em segundo plano.</p>
       </div>
     </div>
 
@@ -1285,12 +1280,18 @@ function openTaskModal(editId) {
   if (!editId) {
     document.getElementById('taskTitle').value = '';
     document.getElementById('taskTime').value = '';
-    document.getElementById('shortcutToggle').classList.add('on');
+    document.getElementById('shortcutToggle').classList.remove('on');
   }
-  // Show/hide reminder row based on view type
+
   var inCatView = state.view === 'cat';
-  document.getElementById('reminderRow').style.display = inCatView ? 'none' : '';
-  // Populate category select filtered for current view
+
+  // Vision view: show reminder toggle, show time, hide category selector
+  // Cat view: hide reminder toggle, hide category selector (cat is implicit)
+  document.getElementById('reminderRow').style.display = inCatView ? 'none' : 'flex';
+  document.getElementById('catFieldWrap').style.display = inCatView ? 'none' : '';
+  // if both fields hidden, collapse row
+  document.getElementById('timeFieldWrap').style.flex = inCatView ? '1' : '';
+
   populateCatSelect();
   document.getElementById('taskModal').classList.add('open');
   setTimeout(function(){ document.getElementById('taskTitle').focus(); }, 350);
@@ -1331,41 +1332,13 @@ function saveTask() {
 }
 
 function triggerReminder(title, date, time) {
-  // VTODO creates a Reminders item (not Calendar event) on iOS
-  var now = new Date().toISOString().replace(/[-:.]/g,'').slice(0,15) + 'Z';
-  var dueStr = '';
-  if (time) {
-    // local datetime without Z so iOS respects local timezone
-    var dt = date.replace(/-/g,'') + 'T' + time.replace(':','') + '00';
-    dueStr = '\r\nDUE;TZID=America/Sao_Paulo:' + dt;
-  } else {
-    dueStr = '\r\nDUE;VALUE=DATE:' + date.replace(/-/g,'');
-  }
-
-  var ics = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Tarefas App//PT',
-    'CALSCALE:GREGORIAN',
-    'BEGIN:VTODO',
-    'UID:' + Date.now() + '@tarefas',
-    'DTSTAMP:' + now,
-    'SUMMARY:' + title,
-    'DESCRIPTION:Adicionado pelo app Tarefas',
-    'STATUS:NEEDS-ACTION',
-    'PRIORITY:0' + dueStr,
-    'END:VTODO',
-    'END:VCALENDAR'
-  ].join('\r\n');
-
-  var blob = new Blob([ics], {type: 'text/calendar;charset=utf-8'});
-  var url  = URL.createObjectURL(blob);
-  var a    = document.createElement('a');
-  a.href   = url;
-  a.download = 'lembrete.ics';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1500);
+  // shortcuts:// is the only method that works reliably in iOS PWA (no file downloads)
+  // Passes title + datetime to the configured Shortcut which adds to Reminders
+  var dt = time ? (date + 'T' + time + ':00') : date;
+  var payload = JSON.stringify({ title: title, date: dt });
+  var url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(DB.shortcutName)
+          + '&input=text&text=' + encodeURIComponent(payload);
+  window.location.href = url;
 }
 
 var newCatIsCat = false;

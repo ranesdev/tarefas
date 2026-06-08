@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Tarefas">
@@ -313,24 +313,67 @@ html, body {
   padding: 11px 13px;
   display: flex; align-items: center; gap: 10px;
   cursor: pointer;
-  transition: all 0.18s;
+  transition: background 0.18s, border-color 0.18s, opacity 0.18s;
   position: relative;
   overflow: hidden;
   animation: cardIn 0.25s ease both;
   touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* swipe reveal background */
+.task-card::before {
+  content: '✓';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 70px;
+  background: var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: white;
+  font-weight: 700;
+  transform: translateX(-100%);
+  transition: transform 0.0s;
+  border-radius: var(--radius) 0 0 var(--radius);
+  z-index: 0;
+}
+.task-card.swiping::before {
+  transform: translateX(0);
+}
+
+/* mercado: reveal on right side (swipe left) */
+.task-card.mercado-card::before {
+  left: auto; right: 0;
+  transform: translateX(100%);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.task-card.mercado-card.swiping::before {
+  transform: translateX(0);
+}
+
+.task-card-inner {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  background: var(--bg2);
+  border-radius: calc(var(--radius) - 1px);
+  transition: transform 0.18s cubic-bezier(.4,0,.2,1);
+  will-change: transform;
 }
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .task-card:hover { background: var(--bg3); border-color: var(--border2); }
+.task-card:hover .task-card-inner { background: var(--bg3); }
 .task-card.done { opacity: 0.38; }
 .task-card.done .task-title { text-decoration: line-through; }
 .task-card.removing {
-  animation: cardOut 0.2s ease forwards;
+  animation: cardOut 0.25s ease forwards;
 }
 @keyframes cardOut {
-  to { opacity: 0; transform: translateX(40px) scale(0.95); max-height: 0; padding: 0; margin: 0; border: none; }
+  to { opacity: 0; transform: translateX(60px) scale(0.95); max-height: 0; padding: 0; margin: 0; border: none; }
 }
 
 .check {
@@ -342,8 +385,9 @@ html, body {
   transition: all 0.2s;
   cursor: pointer;
   background: transparent;
+  -webkit-tap-highlight-color: transparent;
 }
-.check:hover { border-color: var(--gold); }
+.check:active { border-color: var(--gold); transform: scale(0.9); }
 .check.done { background: var(--green); border-color: var(--green); }
 .check svg { width: 11px; height: 11px; opacity: 0; transition: opacity 0.15s; }
 .check.done svg { opacity: 1; }
@@ -371,6 +415,25 @@ html, body {
 }
 .task-card:hover .task-delete { opacity: 1; }
 .task-delete:hover { background: var(--red2); color: var(--red); }
+/* on touch devices always show delete */
+@media (hover: none) {
+  .task-delete { opacity: 0.4; }
+}
+
+/* swipe hint on first load */
+.swipe-hint {
+  font-size: 10px; color: var(--text3);
+  text-align: center;
+  padding: 6px 0 0;
+  opacity: 0.6;
+  font-family: 'DM Mono', monospace;
+  animation: fadeHint 4s ease forwards;
+}
+@keyframes fadeHint {
+  0%   { opacity: 0.6; }
+  60%  { opacity: 0.6; }
+  100% { opacity: 0; }
+}
 
 /* empty state */
 .empty {
@@ -446,7 +509,7 @@ html, body {
   border: 0.5px solid var(--border2);
   border-radius: var(--rsm);
   padding: 10px 12px;
-  font-size: 13px; color: var(--text);
+  font-size: 16px; color: var(--text);
   outline: none;
   font-family: 'DM Sans', sans-serif;
   transition: border-color 0.15s;
@@ -706,27 +769,19 @@ html, body {
         <select class="form-select" id="taskCat" style="color:var(--text)"></select>
       </div>
       <div class="form-field">
-        <label class="form-label">Horário</label>
-        <input class="form-input" type="time" id="taskTime" style="font-family:'DM Mono',monospace;font-size:13px">
+        <label class="form-label">Horário (opcional)</label>
+        <input class="form-input" type="time" id="taskTime" style="font-family:'DM Mono',monospace;font-size:16px">
       </div>
     </div>
 
-    <div class="form-field">
-      <label class="form-label">Quando</label>
-      <div class="chip-row" id="chipRow">
-        <div class="chip active" onclick="selectChip(this,'hoje')">Hoje</div>
-        <div class="chip" onclick="selectChip(this,'amanha')">Amanhã</div>
-      </div>
-    </div>
-
-    <div class="shortcut-row">
-      <span class="icon">⌘</span>
+    <div class="shortcut-row" id="reminderRow">
+      <span class="icon">🔔</span>
       <div class="shortcut-text">
-        <strong>Criar lembrete no iPhone</strong>
-        Via app Atalhos da Apple
+        <strong>Adicionar ao Lembretes</strong>
+        Abre o app Lembretes do iPhone
       </div>
       <div class="toggle-wrap">
-        <div class="toggle on" id="shortcutToggle" onclick="this.classList.toggle('on')" role="switch" aria-checked="true" aria-label="Criar lembrete no iPhone"></div>
+        <div class="toggle on" id="shortcutToggle" onclick="this.classList.toggle('on')" role="switch" aria-checked="true" aria-label="Adicionar ao Lembretes"></div>
       </div>
     </div>
 
@@ -739,6 +794,14 @@ html, body {
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Nova categoria</div>
+    <div class="form-field">
+      <label class="form-label">Tipo</label>
+      <div class="chip-row" id="catTypeRow">
+        <div class="chip active" id="catTypeVisao" onclick="selectCatType(false)">☀ Visão</div>
+        <div class="chip" id="catTypeLista" onclick="selectCatType(true)">📋 Lista</div>
+      </div>
+      <p style="font-size:10px;color:var(--text3);margin-top:5px;line-height:1.4" id="catTypeHint">Aparece nas abas Hoje / Amanhã / Todas.</p>
+    </div>
     <div class="form-field">
       <label class="form-label">Emoji</label>
       <div class="emoji-grid" id="emojiGrid"></div>
@@ -813,10 +876,10 @@ html, body {
 var DB = {
   tasks: [],
   categories: [
-    { id:'c1', emoji:'🛒', name:'Mercado' },
-    { id:'c2', emoji:'🏠', name:'Casa'    },
-    { id:'c3', emoji:'💼', name:'Trabalho'},
-    { id:'c4', emoji:'💊', name:'Saúde'   }
+    { id:'c1', emoji:'🛒', name:'Mercado',  isCat: true  },
+    { id:'c2', emoji:'🏠', name:'Casa',     isCat: true  },
+    { id:'c3', emoji:'💼', name:'Trabalho', isCat: true  },
+    { id:'c4', emoji:'💊', name:'Saúde',    isCat: true  }
   ],
   shortcutName: 'AddLembrete',
   bannerDismissed: false
@@ -836,7 +899,19 @@ function save() { try { localStorage.setItem('tarefas_db', JSON.stringify(DB)); 
 function load() {
   try {
     var d = localStorage.getItem('tarefas_db');
-    if (d) { var p = JSON.parse(d); DB.tasks = p.tasks||[]; DB.categories = p.categories||DB.categories; DB.bannerDismissed = p.bannerDismissed||false; }
+    if (d) {
+      var p = JSON.parse(d);
+      DB.tasks = p.tasks||[];
+      // merge saved categories but keep isCat flags from defaults for built-ins
+      if (p.categories) {
+        DB.categories = p.categories.map(function(saved){
+          var def = [{id:'c1'},{id:'c2'},{id:'c3'},{id:'c4'}];
+          var isBuiltin = ['c1','c2','c3','c4'].indexOf(saved.id) !== -1;
+          return Object.assign({}, saved, { isCat: isBuiltin ? true : (saved.isCat||false) });
+        });
+      }
+      DB.bannerDismissed = p.bannerDismissed||false;
+    }
   } catch(e){}
 }
 
@@ -933,11 +1008,25 @@ function renderSidebar() {
 function populateCatSelect() {
   var sel = document.getElementById('taskCat');
   sel.innerHTML = '';
-  DB.categories.forEach(function(cat){
+  // If in a category view, only show that category
+  // If in a vision view, only show non-isCat categories (or none — default to no cat)
+  var cats;
+  if (state.view === 'cat') {
+    cats = DB.categories.filter(function(c){ return c.isCat; });
+  } else {
+    cats = DB.categories.filter(function(c){ return !c.isCat; });
+  }
+  // fallback: if no cats available, show all
+  if (cats.length === 0) cats = DB.categories;
+  cats.forEach(function(cat){
     var o = document.createElement('option');
     o.value = cat.id; o.textContent = cat.emoji+' '+cat.name;
     sel.appendChild(o);
   });
+  // if in cat view, pre-select current cat
+  if (state.view === 'cat' && state.catFilter) {
+    sel.value = state.catFilter;
+  }
 }
 
 // ── VIEWS ──
@@ -979,17 +1068,34 @@ function renderTasks() {
   var search = (document.getElementById('searchInput')||{}).value||'';
   search = search.toLowerCase();
 
+  // helper: is this task from a "category" (Mercado, Casa etc) — not for vision views
+  function taskIsCat(t) {
+    var c = DB.categories.find(function(x){ return x.id === t.catId; });
+    return c && c.isCat;
+  }
+
   var tasks = DB.tasks.filter(function(t){
     if (search && t.title.toLowerCase().indexOf(search) === -1) return false;
-    if (state.view === 'hoje')      return t.date === today;
-    if (state.view === 'amanha')    return t.date === tomorrow;
-    if (state.view === 'atrasadas') return t.date < today && !t.done;
-    if (state.view === 'cat')       return t.catId === state.catFilter;
+    if (state.view === 'hoje') {
+      return t.date === today && !taskIsCat(t);
+    }
+    if (state.view === 'amanha') {
+      return t.date === tomorrow && !taskIsCat(t);
+    }
+    if (state.view === 'atrasadas') {
+      return t.date < today && !t.done && !taskIsCat(t);
+    }
+    if (state.view === 'todas') {
+      return !taskIsCat(t);
+    }
+    if (state.view === 'cat') {
+      return t.catId === state.catFilter;
+    }
     return true;
   });
 
-  // filter by tab for main views
-  if (state.view === 'todas' || state.view === 'cat') {
+  // date tab filter only for vision views (not cat view)
+  if (state.view === 'todas') {
     if (state.tab === 'hoje')   tasks = tasks.filter(function(t){ return t.date === today; });
     if (state.tab === 'amanha') tasks = tasks.filter(function(t){ return t.date === tomorrow; });
   }
@@ -1016,6 +1122,14 @@ function renderTasks() {
     gl.className = 'group-label'; gl.textContent = 'Pendentes · ' + pending.length;
     list.appendChild(gl);
     pending.forEach(function(t){ list.appendChild(buildCard(t)); });
+    // show swipe hint on touch devices
+    if ('ontouchstart' in window && !localStorage.getItem('swipeHintSeen')) {
+      var hint = document.createElement('div');
+      hint.className = 'swipe-hint';
+      hint.textContent = '← deslize para concluir →';
+      list.appendChild(hint);
+      localStorage.setItem('swipeHintSeen', '1');
+    }
   }
   if (done.length) {
     var gl2 = document.createElement('div');
@@ -1030,21 +1144,29 @@ function buildCard(task) {
   var cat = DB.categories.find(function(c){ return c.id === task.catId; }) || {emoji:'📌',name:'Geral'};
   var today = todayStr();
   var overdue = task.date < today && !task.done;
+  // market mode: category named Mercado or emoji 🛒
+  var isMercado = cat.emoji === '🛒' || cat.name === 'Mercado';
 
   var div = document.createElement('div');
-  div.className = 'task-card' + (task.done?' done':'');
+  div.className = 'task-card' + (task.done?' done':'') + (isMercado?' mercado-card':'');
   div.setAttribute('role','listitem');
   div.dataset.id = task.id;
 
   var timeHtml = task.time ? '<span class="task-time">◷ '+task.time+'</span>' : '';
   var badgeHtml = '';
-  if (task.shortcut) badgeHtml += '<span class="task-badge shortcut">⌘ Lembrete</span>';
+  if (task.shortcut) badgeHtml += '<span class="task-badge shortcut">🔔 Lembrete</span>';
   if (overdue)       badgeHtml += '<span class="task-badge overdue">⚑ Atrasada</span>';
 
-  div.innerHTML =
+  var inner = document.createElement('div');
+  inner.className = 'task-card-inner';
+
+  var checkHtml = isMercado ? '' :
     '<div class="check'+(task.done?' done':'')+'" onclick="toggleTask(\''+task.id+'\')" role="checkbox" aria-checked="'+(task.done?'true':'false')+'" aria-label="'+(task.done?'Desmarcar':'Marcar como concluída')+'">' +
       '<svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6L4.5 9L10.5 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-    '</div>' +
+    '</div>';
+
+  inner.innerHTML =
+    checkHtml +
     '<div class="task-info">' +
       '<div class="task-title">'+escHtml(task.title)+'</div>' +
       '<div class="task-meta">' +
@@ -1053,6 +1175,66 @@ function buildCard(task) {
       '</div>' +
     '</div>' +
     '<div class="task-delete" onclick="deleteTask(\''+task.id+'\')" role="button" aria-label="Excluir tarefa">✕</div>';
+
+  div.appendChild(inner);
+
+  // swipe gesture
+  if (!task.done) {
+    var startX = 0, startY = 0, dx = 0;
+    var threshold = 90;
+    var active = false;
+
+    inner.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      dx = 0; active = true;
+    }, {passive: true});
+
+    inner.addEventListener('touchmove', function(e) {
+      if (!active) return;
+      dx = e.touches[0].clientX - startX;
+      var dy = Math.abs(e.touches[0].clientY - startY);
+      if (dy > Math.abs(dx) + 10) { active = false; inner.style.transform = ''; div.classList.remove('swiping'); return; }
+
+      if (isMercado) {
+        // swipe left to complete for mercado
+        if (dx < 0) {
+          e.preventDefault();
+          var clamp = Math.max(dx, -(threshold + 20));
+          inner.style.transform = 'translateX('+clamp+'px)';
+          if (Math.abs(clamp) >= threshold * 0.6) div.classList.add('swiping');
+          else div.classList.remove('swiping');
+        }
+      } else {
+        // swipe right to complete for others
+        if (dx > 0) {
+          e.preventDefault();
+          var clamp2 = Math.min(dx, threshold + 20);
+          inner.style.transform = 'translateX('+clamp2+'px)';
+          if (clamp2 >= threshold * 0.6) div.classList.add('swiping');
+          else div.classList.remove('swiping');
+        }
+      }
+    }, {passive: false});
+
+    function onSwipeEnd() {
+      if (!active) return;
+      active = false;
+      div.classList.remove('swiping');
+      var triggered = isMercado ? (dx <= -threshold) : (dx >= threshold);
+      if (triggered) {
+        inner.style.transform = isMercado ? 'translateX(-110%)' : 'translateX(110%)';
+        setTimeout(function(){ toggleTask(task.id); }, 200);
+      } else {
+        inner.style.transition = 'transform 0.2s cubic-bezier(.4,0,.2,1)';
+        inner.style.transform = '';
+        setTimeout(function(){ inner.style.transition = ''; }, 200);
+      }
+    }
+
+    inner.addEventListener('touchend', onSwipeEnd, {passive: true});
+    inner.addEventListener('touchcancel', onSwipeEnd, {passive: true});
+  }
 
   return div;
 }
@@ -1080,10 +1262,16 @@ function updateBadges() {
   var today    = todayStr();
   var tomorrow = tomorrowStr();
   var all      = DB.tasks;
-  set('badge-hoje',    all.filter(function(t){ return t.date===today&&!t.done; }).length);
-  set('badge-amanha',  all.filter(function(t){ return t.date===tomorrow&&!t.done; }).length);
-  set('badge-todas',   all.length);
-  var overdue = all.filter(function(t){ return t.date<today&&!t.done; }).length;
+
+  function notCat(t) {
+    var c = DB.categories.find(function(x){ return x.id === t.catId; });
+    return !(c && c.isCat);
+  }
+
+  set('badge-hoje',    all.filter(function(t){ return t.date===today&&!t.done&&notCat(t); }).length);
+  set('badge-amanha',  all.filter(function(t){ return t.date===tomorrow&&!t.done&&notCat(t); }).length);
+  set('badge-todas',   all.filter(notCat).length);
+  var overdue = all.filter(function(t){ return t.date<today&&!t.done&&notCat(t); }).length;
   var ovEl = document.getElementById('badge-atrasadas');
   if (overdue) { ovEl.textContent=overdue; ovEl.style.display=''; }
   else ovEl.style.display='none';
@@ -1098,8 +1286,12 @@ function openTaskModal(editId) {
     document.getElementById('taskTitle').value = '';
     document.getElementById('taskTime').value = '';
     document.getElementById('shortcutToggle').classList.add('on');
-    selectChip(document.querySelector('#chipRow .chip'), 'hoje');
   }
+  // Show/hide reminder row based on view type
+  var inCatView = state.view === 'cat';
+  document.getElementById('reminderRow').style.display = inCatView ? 'none' : '';
+  // Populate category select filtered for current view
+  populateCatSelect();
   document.getElementById('taskModal').classList.add('open');
   setTimeout(function(){ document.getElementById('taskTitle').focus(); }, 350);
 }
@@ -1110,15 +1302,14 @@ function saveTask() {
 
   var catId   = document.getElementById('taskCat').value;
   var time    = document.getElementById('taskTime').value;
-  var useShortcut = document.getElementById('shortcutToggle').classList.contains('on');
-  var chip    = document.querySelector('#chipRow .chip.active');
-  var when    = chip ? chip.dataset.when : 'hoje';
-  var date    = when === 'amanha' ? tomorrowStr() : todayStr();
+  var inCatView = state.view === 'cat';
+  var useReminder = !inCatView && document.getElementById('shortcutToggle').classList.contains('on');
+  var date    = todayStr();
 
   var task = {
     id: state.editId || ('t'+Date.now()),
     title: title, catId: catId, date: date,
-    time: time, done: false, shortcut: useShortcut,
+    time: time, done: false, shortcut: useReminder,
     createdAt: new Date().toISOString()
   };
 
@@ -1134,20 +1325,64 @@ function saveTask() {
   renderTasks();
   renderSidebar();
 
-  if (useShortcut && time) {
-    triggerShortcut(title, date, time);
+  if (useReminder) {
+    triggerReminder(title, date, time);
   }
 }
 
-function triggerShortcut(title, date, time) {
-  var dt = date + 'T' + time + ':00';
-  var input = encodeURIComponent(JSON.stringify({ title: title, date: dt }));
-  var url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(DB.shortcutName) + '&input=' + input;
-  window.location.href = url;
+function triggerReminder(title, date, time) {
+  // VTODO creates a Reminders item (not Calendar event) on iOS
+  var now = new Date().toISOString().replace(/[-:.]/g,'').slice(0,15) + 'Z';
+  var dueStr = '';
+  if (time) {
+    // local datetime without Z so iOS respects local timezone
+    var dt = date.replace(/-/g,'') + 'T' + time.replace(':','') + '00';
+    dueStr = '\r\nDUE;TZID=America/Sao_Paulo:' + dt;
+  } else {
+    dueStr = '\r\nDUE;VALUE=DATE:' + date.replace(/-/g,'');
+  }
+
+  var ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Tarefas App//PT',
+    'CALSCALE:GREGORIAN',
+    'BEGIN:VTODO',
+    'UID:' + Date.now() + '@tarefas',
+    'DTSTAMP:' + now,
+    'SUMMARY:' + title,
+    'DESCRIPTION:Adicionado pelo app Tarefas',
+    'STATUS:NEEDS-ACTION',
+    'PRIORITY:0' + dueStr,
+    'END:VTODO',
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  var blob = new Blob([ics], {type: 'text/calendar;charset=utf-8'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href   = url;
+  a.download = 'lembrete.ics';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1500);
+}
+
+var newCatIsCat = false;
+
+function selectCatType(isCat) {
+  newCatIsCat = isCat;
+  document.getElementById('catTypeVisao').classList.toggle('active', !isCat);
+  document.getElementById('catTypeLista').classList.toggle('active', isCat);
+  document.getElementById('catTypeHint').textContent = isCat
+    ? 'Aparece na barra lateral como lista separada (Mercado, Casa…).'
+    : 'Aparece nas abas Hoje / Amanhã / Todas.';
 }
 
 // ── CATEGORY MODAL ──
 function openCatModal() {
+  newCatIsCat = false;
+  selectCatType(false);
   selectedEmoji = EMOJIS[0];
   var grid = document.getElementById('emojiGrid');
   grid.innerHTML = '';
@@ -1169,7 +1404,7 @@ function openCatModal() {
 function saveCategory() {
   var name = document.getElementById('catName').value.trim();
   if (!name) return;
-  DB.categories.push({ id:'c'+Date.now(), emoji:selectedEmoji, name:name });
+  DB.categories.push({ id:'c'+Date.now(), emoji:selectedEmoji, name:name, isCat: newCatIsCat });
   save(); renderSidebar();
   closeModal('catModal');
 }
